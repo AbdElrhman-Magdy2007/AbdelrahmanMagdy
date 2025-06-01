@@ -2,7 +2,7 @@
 
 import { cache } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { db } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { Pages, Routes } from "@/constants/enums";
 import { ProductWithRelations } from "@/app/types/product";
 import { Category } from "@prisma/client";
@@ -103,7 +103,7 @@ const getProduct = cache(async (productId: string): Promise<ProductWithRelations
   }
 
   try {
-    const product = await db.product.findUnique({
+    const product = await prisma.product.findUnique({
       where: { id: productId },
       include: {
         ProductTech: { select: { id: true, name: true } },

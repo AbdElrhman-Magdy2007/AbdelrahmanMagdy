@@ -2,7 +2,7 @@
 
 import { cache } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { db } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { ProductWithRelations } from '@/app/types/product';
 import { revalidatePath } from 'next/cache';
 
@@ -84,7 +84,7 @@ export const getAllProducts = cache(async (): Promise<ProductWithRelations[] | E
   console.log(`${LOG_PREFIX} [${requestId}] Fetching all products`);
 
   try {
-    const products = await db.product.findMany({
+    const products = await prisma.product.findMany({
       include: productInclude,
       orderBy: { name: 'asc' },
     });
@@ -125,7 +125,7 @@ export const getProducts = cache(async (options: GetProductsOptions = {}): Promi
     const skip = limit > 0 ? (page - 1) * limit : 0;
     const trimmedSearch = search?.trim();
 
-    const products = await db.product.findMany({
+    const products = await prisma.product.findMany({
       where: {
         name: trimmedSearch ? { contains: trimmedSearch, mode: 'insensitive' } : undefined,
       },
@@ -165,7 +165,7 @@ export const getProductsCount = cache(async (options: Pick<GetProductsOptions, '
 
   try {
     const trimmedSearch = options.search?.trim();
-    const count = await db.product.count({
+    const count = await prisma.product.count({
       where: {
         name: trimmedSearch ? { contains: trimmedSearch, mode: 'insensitive' } : undefined,
       },
@@ -199,7 +199,7 @@ export const getBestSellers = cache(async (limit?: number): Promise<ProductWithR
   try {
     if (limit && limit < 1) throw new Error(ERROR_MESSAGES.INVALID_LIMIT);
 
-    const products = await db.product.findMany({
+    const products = await prisma.product.findMany({
       where: { orders: { some: {} } },
       orderBy: { orders: { _count: 'desc' } },
       include: productInclude,
@@ -234,7 +234,7 @@ export const getProductsByCategory = cache(async (): Promise<CategoryWithProduct
   console.log(`${LOG_PREFIX} [${requestId}] Fetching categories with products`);
 
   try {
-    const categories = await db.category.findMany({
+    const categories = await prisma.category.findMany({
       include: {
         products: {
           include: productInclude,
@@ -310,7 +310,7 @@ export const getProductsByCategoryId = cache(
       const skip = limit > 0 ? (page - 1) * limit : 0;
       const trimmedSearch = search?.trim();
 
-      const products = await db.product.findMany({
+      const products = await prisma.product.findMany({
         where: {
           categoryId,
           name: trimmedSearch ? { contains: trimmedSearch, mode: 'insensitive' } : undefined,
