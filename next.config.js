@@ -34,7 +34,7 @@ const nextConfig = {
   },
 
   // Webpack configuration for custom asset handling
-  webpack(config, { isServer }) {
+  webpack: (config, { isServer }) => {
     // Handle media files (images, videos)
     config.module.rules.push({
       test: /\.(mp4|webm|ogg|jpeg|jpg|png|gif|svg)$/i,
@@ -58,8 +58,10 @@ const nextConfig = {
 
     // Improve performance for server-side builds
     if (isServer) {
+      config.optimization = config.optimization || {};
+      config.optimization.splitChunks = config.optimization.splitChunks || {};
       config.optimization.splitChunks.cacheGroups = {
-        ...config.optimization.splitChunks.cacheGroups,
+        ...(config.optimization.splitChunks.cacheGroups || {}),
         prisma: {
           test: /[\\/]node_modules[\\/]@prisma[\\/]/,
           name: 'prisma',
@@ -72,7 +74,7 @@ const nextConfig = {
     return config;
   },
 
-  // Performance and caching optimizations
+  // Security headers
   async headers() {
     return [
       {
@@ -85,6 +87,14 @@ const nextConfig = {
           {
             key: 'X-Content-Type-Options',
             value: 'nosniff', // Prevent MIME-type sniffing
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
           },
         ],
       },
@@ -120,4 +130,5 @@ const nextConfig = {
   output: 'standalone', // Optimize for serverless environments like Vercel
 };
 
-export default nextConfig;
+module.exports = nextConfig;
+/////////////////////////////////
