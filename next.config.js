@@ -130,5 +130,5 @@ const nextConfig = {
   output: 'standalone', // Optimize for serverless environments like Vercel
 };
 
-module.exports = nextConfig;
+export default nextConfig;
 /////////////////////////////////
